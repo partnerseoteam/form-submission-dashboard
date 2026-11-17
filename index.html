@@ -187,6 +187,8 @@ window.dash = (() => {
 .fd .tabs button:hover { background: none; color: var(--color-fg); }
 .fd .tabs button.on { color: var(--color-fg); border-bottom-color: var(--color-fg); font-weight: var(--cds-font-weight-medium); }
 .fd .tabpage { display: flex; flex-direction: column; gap: var(--cds-gap-lg); }
+.fd.single .cmp { display: none !important; }
+.fd:not(.single) .solo { display: none !important; }
 [data-dash-source-state=empty] { color: transparent; }
 [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
 </style>
@@ -200,7 +202,14 @@ window.dash = (() => {
 
   <section id="scenarios" aria-label="Scenarios">
     <div class="bar" style="margin-bottom: var(--cds-gap-sm)">
-      <label style="min-width: min(100%, 18rem)">Saved comparisons
+      <div class="field">
+        <span>View</span>
+        <span class="seg" role="group" aria-label="View">
+          <button type="button" data-mode="compare">Compare two</button>
+          <button type="button" data-mode="single">Single view</button>
+        </span>
+      </div>
+      <label class="cmp" style="min-width: min(100%, 18rem)">Saved comparisons
         <select id="presets" data-draw="presets" data-source="views"></select>
       </label>
       <div class="field">
@@ -263,7 +272,7 @@ window.dash = (() => {
           </div>
         </div>
       </div>
-      <div class="card" id="scenario-b">
+      <div class="card cmp" id="scenario-b">
         <div class="cardhead">
           <div>
             <h2 class="sname"><span class="swatch sb"></span><input type="text" class="namein" data-sc="B" maxlength="40" placeholder="Scenario B" autocomplete="off" aria-label="Scenario B name, click to rename" title="Click to rename"></h2>
@@ -313,8 +322,8 @@ window.dash = (() => {
     </div>
     <div class="bar" style="margin-top: var(--cds-gap-sm)">
       <div class="ctl">
-        <button type="button" id="btn-copy" data-draw="copylabel" data-source="events">—</button>
-        <button type="button" id="btn-swap" data-draw="swaplabel" data-source="events">—</button>
+        <button type="button" class="cmp" id="btn-copy" data-draw="copylabel" data-source="events">—</button>
+        <button type="button" class="cmp" id="btn-swap" data-draw="swaplabel" data-source="events">—</button>
         <button type="button" id="btn-reset">Reset</button>
       </div>
       <div class="ctl">
@@ -328,14 +337,14 @@ window.dash = (() => {
   </section>
 
   <nav class="tabs" role="tablist" aria-label="Dashboard sections">
-    <button type="button" role="tab" data-tab="compare">Compare</button>
+    <button type="button" role="tab" data-tab="compare">Overview</button>
     <button type="button" role="tab" data-tab="patterns">Patterns</button>
     <button type="button" role="tab" data-tab="agency-watch">Agencies</button>
   </nav>
 
   <div class="tabpage" id="compare" role="tabpanel" aria-label="Compare">
   <section id="summary" class="card" aria-label="Summary">
-    <div class="cardhead"><div><h2>Side by side</h2><p class="muted">Each figure covers only the submissions that match that scenario's filters. Weekdays are Monday to Friday; holidays are not removed.</p></div></div>
+    <div class="cardhead"><div><h2><span class="cmp">Side by side</span><span class="solo">Summary</span></h2><p class="muted">Each figure covers only the submissions that match that scenario's filters. Weekdays are Monday to Friday; holidays are not removed.</p></div></div>
     <div class="scroll"><table data-draw="kpis" data-source="events"></table></div>
   </section>
 
@@ -348,13 +357,13 @@ window.dash = (() => {
           <button type="button" data-opt="gran" data-val="week">Week</button>
           <button type="button" data-opt="gran" data-val="month">Month</button>
         </span>
-        <span class="seg" role="group" aria-label="Axis">
+        <span class="seg cmp" role="group" aria-label="Axis">
           <button type="button" data-opt="align" data-val="calendar">Calendar dates</button>
           <button type="button" data-opt="align" data-val="aligned">Line up starts</button>
         </span>
       </div>
     </div>
-    <div class="legend"><span><span class="swatch sa"></span><span data-draw="scname" data-sc="A">—</span></span><span><span class="swatch sb"></span><span data-draw="scname" data-sc="B">—</span></span></div>
+    <div class="legend"><span><span class="swatch sa"></span><span data-draw="scname" data-sc="A">—</span></span><span class="cmp"><span class="swatch sb"></span><span data-draw="scname" data-sc="B">—</span></span></div>
     <div class="chart" data-draw="timeline" data-source="events milestones"></div>
     <div class="evlist muted" data-draw="eventlist" data-source="milestones">—</div>
   </section>
@@ -439,8 +448,8 @@ window.dash = (() => {
             <th data-sort="name"><button type="button">Agency</button></th>
             <th data-sort="entity" class="left"><button type="button">Entity</button></th>
             <th data-sort="a"><button type="button"><span class="swatch sa"></span><span data-draw="scname" data-sc="A">—</span></button></th>
-            <th data-sort="b"><button type="button"><span class="swatch sb"></span><span data-draw="scname" data-sc="B">—</span></button></th>
-            <th data-sort="change"><button type="button">Change</button></th>
+            <th data-sort="b" class="cmp"><button type="button"><span class="swatch sb"></span><span data-draw="scname" data-sc="B">—</span></button></th>
+            <th data-sort="change" class="cmp"><button type="button">Change</button></th>
             <th data-sort="last"><button type="button">Last submission</button></th>
             <th data-sort="status" class="left"><button type="button">Status</button></th>
           </tr>
@@ -517,6 +526,8 @@ dash.calc('events', {
   let S = defaults();
   const V = { metric: 'count', gran: 'week', align: 'calendar', sgran: 'week', smetric: 'count', split: 'entity', quiet: 45, aq: '', onlyQuiet: false, sort: { k: 'b', d: -1 }, preset: 'sep-vs-oct', tab: 'compare' };
   const TABS = ['compare', 'patterns', 'agency-watch'];
+  V.mode = 'compare';
+  const KS = () => (V.mode === 'single' ? ['A'] : ['A', 'B']);
   let events = [];
   let info = null;
   let agencyInfo = null;
@@ -582,7 +593,7 @@ dash.calc('events', {
   const svgEl = (name, attrs) => { const e = document.createElementNS(NS, name); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
   const W = (el) => Math.max(280, el.clientWidth || 600);
   function msg(el, text) { const d = document.createElement('div'); d.className = 'msg'; d.textContent = text; el.replaceChildren(d); }
-  const none = () => !scenario('A').n && !scenario('B').n;
+  const none = () => KS().every((k) => !scenario(k).n);
 
   function showTip(evt, title, lines) {
     tip.replaceChildren();
@@ -674,10 +685,11 @@ dash.calc('events', {
   function colChart(el, cats, vals, o) {
     const w = W(el), h = o.h || 240, m = { t: 12, r: 12, b: 28, l: 46 };
     const c = colors();
-    const ymax = d3.max(['A', 'B'], (k) => d3.max(vals[k])) || 1;
+    const ks = KS();
+    const ymax = d3.max(ks, (k) => d3.max(vals[k])) || 1;
     const y = d3.scaleLinear().domain([0, ymax * 1.08]).nice(4).range([h - m.b, m.t]);
     const x0 = d3.scaleBand().domain(cats.map((_, i) => i)).range([m.l, w - m.r]).paddingInner(0.2).paddingOuter(0.05);
-    const x1 = d3.scaleBand().domain(['A', 'B']).range([0, x0.bandwidth()]).padding(0.06);
+    const x1 = d3.scaleBand().domain(ks).range([0, x0.bandwidth()]).padding(0.06);
     const svg = svgEl('svg', { width: '100%', viewBox: `0 0 ${w} ${h}`, role: 'img', 'aria-label': o.label });
     for (const tk of y.ticks(4)) {
       svg.appendChild(svgEl('line', { x1: m.l, x2: w - m.r, y1: y(tk), y2: y(tk), stroke: 'var(--cds-chart-grid)' }));
@@ -686,12 +698,12 @@ dash.calc('events', {
     svg.appendChild(svgEl('line', { x1: m.l, x2: w - m.r, y1: h - m.b, y2: h - m.b, stroke: 'var(--cds-chart-axis)' }));
     cats.forEach((name, i) => {
       const t = svgEl('text', { x: x0(i) + x0.bandwidth() / 2, y: h - 8, 'text-anchor': 'middle' }); t.textContent = name; svg.appendChild(t);
-      for (const k of ['A', 'B']) {
+      for (const k of ks) {
         const v = vals[k][i];
         svg.appendChild(svgEl('rect', { x: x0(i) + x1(k), y: y(v), width: x1.bandwidth(), height: Math.max(0, y(0) - y(v)), rx: 2, fill: c[k] }));
       }
       const hit = svgEl('rect', { x: x0(i) - 2, y: m.t, width: x0.bandwidth() + 4, height: h - m.t - m.b, fill: 'transparent' });
-      hit.addEventListener('pointermove', (evt) => showTip(evt, name, ['A', 'B'].map((k) => ({ color: c[k], name: nm(k), text: fmtV(vals[k][i]) }))));
+      hit.addEventListener('pointermove', (evt) => showTip(evt, name, ks.map((k) => ({ color: c[k], name: nm(k), text: fmtV(vals[k][i]) }))));
       hit.addEventListener('pointerleave', hideTip);
       svg.appendChild(hit);
     });
@@ -700,12 +712,12 @@ dash.calc('events', {
 
   // ---- chart: grouped horizontal bars, label above each pair ----
   function hbars(el, keyFn, o) {
-    const rowsA = scenario('A').rows, rowsB = scenario('B').rows;
-    const tA = tally(rowsA, keyFn), tB = tally(rowsB, keyFn), c = colors();
-    const big = (n) => Math.max(val('A', tA.get(n) || 0), val('B', tB.get(n) || 0));
-    const shown = [...new Set([...tA.keys(), ...tB.keys()])].sort((a, b) => big(b) - big(a)).slice(0, o.top || 8);
+    const ks = KS(), c = colors();
+    const T = {}; for (const k of ks) T[k] = tally(scenario(k).rows, keyFn);
+    const big = (n) => Math.max(...ks.map((k) => val(k, T[k].get(n) || 0)));
+    const shown = [...new Set(ks.flatMap((k) => [...T[k].keys()]))].sort((a, b) => big(b) - big(a)).slice(0, o.top || 8);
     if (!shown.length) { msg(el, 'No submissions match these filters.'); return; }
-    const w = W(el), lh = 16, bh = 11, gap = 2, pad = 12, gh = lh + bh * 2 + gap + pad;
+    const w = W(el), lh = 16, bh = 11, gap = 2, pad = 12, gh = lh + bh * ks.length + gap * (ks.length - 1) + pad;
     const h = shown.length * gh + 4, right = 64, left = 2;
     const vmax = d3.max(shown, big) || 1;
     const x = d3.scaleLinear().domain([0, vmax]).range([left, w - right]);
@@ -715,14 +727,14 @@ dash.calc('events', {
       const y0 = i * gh;
       const lab = svgEl('text', { x: left, y: y0 + 12, class: 'cat' });
       lab.textContent = n.length > maxc ? n.slice(0, maxc - 1) + '…' : n; svg.appendChild(lab);
-      [['A', tA], ['B', tB]].forEach(([k, tl], j) => {
-        const v = val(k, tl.get(n) || 0), yy = y0 + lh + j * (bh + gap);
+      ks.forEach((k, j) => {
+        const v = val(k, T[k].get(n) || 0), yy = y0 + lh + j * (bh + gap);
         svg.appendChild(svgEl('rect', { x: left, y: yy, width: Math.max(0, x(v) - left), height: bh, rx: 2, fill: c[k] }));
         const t = svgEl('text', { x: x(v) + 5, y: yy + bh - 2, class: 'val' }); t.textContent = fmtV(v); svg.appendChild(t);
       });
       const hit = svgEl('rect', { x: 0, y: y0, width: w, height: gh, fill: 'transparent' });
-      hit.addEventListener('pointermove', (evt) => showTip(evt, n, ['A', 'B'].map((k) => {
-        const cnt = (k === 'A' ? tA : tB).get(n) || 0;
+      hit.addEventListener('pointermove', (evt) => showTip(evt, n, ks.map((k) => {
+        const cnt = T[k].get(n) || 0;
         return { color: c[k], name: nm(k), text: fmtN(cnt) + ' · ' + fmtP(scenario(k).n ? cnt / scenario(k).n : 0) };
       })));
       hit.addEventListener('pointerleave', hideTip);
@@ -775,6 +787,14 @@ dash.calc('events', {
     if (!ready(el)) return;
     const a = scenario('A'), b = scenario('B');
     let s;
+    if (V.mode === 'single') {
+      if (!a.n) { el.textContent = 'No submissions match these filters. Widen the dates or clear a filter.'; return; }
+      const wk = a.rows.filter((e) => e.dow < 5).length;
+      const bm = [...tally(a.rows, (e) => e.month)].sort((x, y) => y[1] - x[1])[0];
+      s = fmtN(a.n) + ' submissions from ' + fmtDay(a.start) + ' to ' + fmtDay(a.end) + ', about ' + d3.format(',.0f')(a.weekdays ? wk / a.weekdays : 0) + ' per weekday.';
+      if (a.days > 45 && bm) s += ' The busiest month was ' + fmtMonth(Date.UTC(+bm[0].slice(0, 4), +bm[0].slice(5, 7) - 1, 1)) + ' with ' + fmtN(bm[1]) + '.';
+      el.textContent = s; return;
+    }
     if (!a.n && !b.n) s = 'Neither scenario matches any submissions. Widen the dates or clear a filter.';
     else if (!a.n) s = nm('A') + ' matches no submissions, while ' + nm('B') + ' has ' + fmtN(b.n) + '.';
     else if (!b.n) s = nm('B') + ' matches no submissions, while ' + nm('A') + ' has ' + fmtN(a.n) + '.';
@@ -790,7 +810,7 @@ dash.calc('events', {
   dash.draw('meta', (el) => {
     if (!ready(el)) return;
     const di = dataInfo(events);
-    el.textContent = fmtN(events.length) + ' submissions from ' + fmtDay(di.min) + ' to ' + fmtDay(di.max) + '. Set filters for the two scenarios to compare them, or pick a saved comparison.';
+    el.textContent = fmtN(events.length) + ' submissions from ' + fmtDay(di.min) + ' to ' + fmtDay(di.max) + '. Look at one range in Single view, or compare two scenarios side by side.';
   });
 
   dash.draw('scdesc', (el) => {
@@ -811,10 +831,15 @@ dash.calc('events', {
     el.value = V.preset && list.some((v) => v.id === V.preset) ? V.preset : '';
   });
 
+  const QM = ['Jan–Mar', 'Apr–Jun', 'Jul–Sep', 'Oct–Dec'];
+  const quarterLabel = (q) => QM[+q.slice(6) - 1];
   dash.draw('range', (el) => {
     if (!ready(el)) return;
     const di = dataInfo(events);
-    const opts = [['', 'Pick a range…'], ['all', 'All dates']].concat(di.months.slice().reverse().map((mo) => [mo, fmtMonth(Date.UTC(+mo.slice(0, 4), +mo.slice(5, 7) - 1, 1))]));
+    const qs = [...new Set(di.months.map((mo) => mo.slice(0, 4) + '-Q' + Math.ceil(+mo.slice(5, 7) / 3)))].reverse();
+    const opts = [['', 'Pick a range…'], ['all', 'All dates']]
+      .concat(qs.map((q) => [q, quarterLabel(q) + ' ' + q.slice(0, 4)]))
+      .concat(di.months.slice().reverse().map((mo) => [mo, fmtMonth(Date.UTC(+mo.slice(0, 4), +mo.slice(5, 7) - 1, 1))]));
     el.replaceChildren(...opts.map(([v, t]) => new Option(t, v)));
     el.value = '';
   });
@@ -870,7 +895,9 @@ dash.calc('events', {
       ['Most used form', a.top, b.top, '—'],
     ];
     const thead = document.createElement('thead'), hr = document.createElement('tr');
-    [['Measure', null], [nm('A'), 'sa'], [nm('B'), 'sb'], ['Change', null]].forEach(([t, cls]) => {
+    const single = V.mode === 'single';
+    if (single) rows.forEach((r) => r.splice(2, 2));
+    (single ? [['Measure', null], [nm('A'), 'sa']] : [['Measure', null], [nm('A'), 'sa'], [nm('B'), 'sb'], ['Change', null]]).forEach(([t, cls]) => {
       const th = document.createElement('th');
       if (cls) { const sw = document.createElement('span'); sw.className = 'swatch ' + cls; th.appendChild(sw); }
       th.appendChild(document.createTextNode(t)); hr.appendChild(th);
@@ -889,7 +916,7 @@ dash.calc('events', {
     if (!ready(el)) return;
     const g = V.gran, c = colors(), unit = { day: 'Day', week: 'Week', month: 'Month' }[g];
     const aligned = V.align === 'aligned';
-    const series = ['A', 'B'].map((k) => ({
+    const series = KS().map((k) => ({
       name: nm(k), color: c[k],
       pts: buckets(k, g).map((p) => ({ x: aligned ? p.i : p.b, y: p.y, label: aligned ? unit + ' ' + (p.i + 1) + ' (' + bucketName(p.b, g) + ')' : bucketName(p.b, g) })),
     }));
@@ -957,7 +984,7 @@ dash.calc('events', {
     if (!ready(el)) return;
     if (none()) { msg(el, 'No submissions match these filters.'); return; }
     const c = colors();
-    const series = ['A', 'B'].map((k) => {
+    const series = KS().map((k) => {
       const t = tally(scenario(k).rows, (e) => e.hour);
       return { name: nm(k), color: c[k], pts: d3.range(24).map((h) => ({ x: h, y: val(k, t.get(h) || 0), label: hourName(h) })) };
     });
@@ -968,7 +995,7 @@ dash.calc('events', {
     if (!ready(el)) return;
     if (none()) { msg(el, 'No submissions match these filters.'); return; }
     const vals = {};
-    for (const k of ['A', 'B']) { const t = tally(scenario(k).rows, (e) => e.dow); vals[k] = d3.range(7).map((d) => val(k, t.get(d) || 0)); }
+    for (const k of KS()) { const t = tally(scenario(k).rows, (e) => e.dow); vals[k] = d3.range(7).map((d) => val(k, t.get(d) || 0)); }
     colChart(el, DOW, vals, { h: 240, label: 'Submissions by day of week' });
   });
 
@@ -997,7 +1024,7 @@ dash.calc('events', {
       else if (r.change === Infinity) ch = 'New';
       else if (r.ca) ch = fmtSigned(r.change);
       const cells = [r.name, r.entity, fmtV(r.a), fmtV(r.b), ch, fmtDay(r.last)];
-      cells.forEach((t, i) => { const td = document.createElement('td'); if (i === 1) td.className = 'left'; td.textContent = t; tr.appendChild(td); });
+      cells.forEach((t, i) => { const td = document.createElement('td'); if (i === 1) td.className = 'left'; if (i === 3 || i === 4) td.className = 'cmp'; td.textContent = t; tr.appendChild(td); });
       const td = document.createElement('td'); td.className = 'left';
       const pill = document.createElement('span'); pill.className = 'pill ' + (r.status === 'Gone quiet' ? 'quiet' : r.status === 'Regular' ? 'regular' : '');
       pill.textContent = r.status; td.appendChild(pill); tr.appendChild(td);
@@ -1019,7 +1046,7 @@ dash.calc('events', {
   // ---- share codes ----
   function encode() {
     const pack = (s) => { const o = {}; for (const f of ['from', 'to', ...FILTERS]) if (s[f] && s[f].length) o[f] = s[f]; return o; };
-    const bytes = new TextEncoder().encode(JSON.stringify({ a: pack(S.A), b: pack(S.B), n: [names.A, names.B] }));
+    const bytes = new TextEncoder().encode(JSON.stringify({ a: pack(S.A), b: pack(S.B), n: [names.A, names.B], m: V.mode === 'single' ? 's' : 'c' }));
     let bin = ''; bytes.forEach((b) => { bin += String.fromCharCode(b); });
     return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   }
@@ -1028,7 +1055,7 @@ dash.calc('events', {
     const bin = atob(s + '==='.slice((s.length + 3) % 4));
     const obj = JSON.parse(new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0))));
     if (!obj || typeof obj !== 'object' || (!obj.a && !obj.b)) throw new Error('bad code');
-    return { S: { A: norm(obj.a), B: norm(obj.b) }, n: Array.isArray(obj.n) ? obj.n.map((x) => String(x || '').slice(0, 40)) : ['', ''] };
+    return { mode: obj.m === 's' ? 'single' : 'compare', S: { A: norm(obj.a), B: norm(obj.b) }, n: Array.isArray(obj.n) ? obj.n.map((x) => String(x || '').slice(0, 40)) : ['', ''] };
   }
 
   // ---- controls ----
@@ -1055,6 +1082,20 @@ dash.calc('events', {
       th.setAttribute('aria-sort', th.dataset.sort === V.sort.k ? (V.sort.d > 0 ? 'ascending' : 'descending') : 'none');
     });
   }
+  function showMode() {
+    root.classList.toggle('single', V.mode === 'single');
+    root.querySelectorAll('[data-mode]').forEach((b) => { const on = b.dataset.mode === V.mode; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  }
+  function enterSingle() {
+    V.mode = 'single'; S.A = norm({}); names.A = 'All dates'; autoName.A = true; V.preset = '';
+    if (V.sort.k === 'b' || V.sort.k === 'change') V.sort = { k: 'a', d: -1 };
+  }
+  root.querySelectorAll('[data-mode]').forEach((b) => b.addEventListener('click', () => {
+    if (b.dataset.mode === V.mode) return;
+    if (b.dataset.mode === 'single') { enterSingle(); V.align = 'calendar'; } else V.mode = 'compare';
+    try { dash.setLink(V.mode === 'single' ? 'single' : 'scenarios'); } catch (e) { /* link is optional */ }
+    notes(null); showMode(); sync(); redraw();
+  }));
   function showTab() {
     TABS.forEach((t) => { const p = document.getElementById(t); if (p) p.hidden = t !== V.tab; });
     root.querySelectorAll('[data-tab]').forEach((b) => { const on = b.dataset.tab === V.tab; b.classList.toggle('on', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
@@ -1078,7 +1119,7 @@ dash.calc('events', {
   function custom() { if (V.preset) { V.preset = ''; try { dash.setLink('scenarios'); } catch (e) { /* link is optional */ } } }
   function changed() { custom(); notes(null); sync(); redraw(); }
   function applyView(v) {
-    S = { A: norm(v.a), B: norm(v.b) }; V.preset = String(v.id); setNames(v.aName, v.bName);
+    S = { A: norm(v.a), B: norm(v.b) }; V.preset = String(v.id); setNames(v.aName, v.bName); V.mode = 'compare'; showMode();
     try { dash.setLink(V.preset); } catch (e) { /* link is optional */ }
     notes(null); sync(); redraw();
   }
@@ -1131,6 +1172,11 @@ dash.calc('events', {
       const y = +v.slice(0, 4), m = +v.slice(5, 7);
       S[k].from = v + '-01'; S[k].to = v + '-' + String(new Date(Date.UTC(y, m, 0)).getUTCDate()).padStart(2, '0');
       names[k] = monthLabel(v); autoName[k] = true;
+    } else if (/^\d{4}-Q[1-4]$/.test(v)) {
+      const y = +v.slice(0, 4), qn = +v.slice(6), m1 = (qn - 1) * 3 + 1, m3 = m1 + 2;
+      S[k].from = y + '-' + String(m1).padStart(2, '0') + '-01';
+      S[k].to = y + '-' + String(m3).padStart(2, '0') + '-' + String(new Date(Date.UTC(y, m3, 0)).getUTCDate()).padStart(2, '0');
+      names[k] = quarterLabel(v) + (y === new Date(dataInfo(events).max).getUTCFullYear() ? '' : ' ' + y); autoName[k] = true;
     } else return;
     el.value = ''; changed();
   }));
@@ -1158,12 +1204,13 @@ dash.calc('events', {
   }));
   root.querySelectorAll('#btn-applycode').forEach((b) => b.addEventListener('click', () => {
     const input = document.getElementById('share-code');
-    try { const d = decode(input.value); S = d.S; setNames(d.n[0], d.n[1]); custom(); notes('code-ok'); input.blur(); sync(); redraw(); }
+    try { const d = decode(input.value); S = d.S; setNames(d.n[0], d.n[1]); V.mode = d.mode; showMode(); custom(); notes('code-ok'); input.blur(); sync(); redraw(); }
     catch (e) { notes('code-bad'); }
   }));
   root.querySelectorAll('#btn-copy').forEach((b) => b.addEventListener('click', () => { S.B = norm(JSON.parse(JSON.stringify(S.A))); names.B = ''; autoName.B = true; changed(); }));
   root.querySelectorAll('#btn-swap').forEach((b) => b.addEventListener('click', () => { const t = S.A; S.A = S.B; S.B = t; [names.A, names.B] = [names.B, names.A]; [autoName.A, autoName.B] = [autoName.B, autoName.A]; changed(); }));
   root.querySelectorAll('#btn-reset').forEach((b) => b.addEventListener('click', () => {
+    if (V.mode === 'single') { enterSingle(); notes(null); sync(); redraw(); return; }
     S = defaults(); setNames('September', 'October'); V.preset = 'sep-vs-oct'; notes(null);
     try { dash.setLink('sep-vs-oct'); } catch (e) { /* link is optional */ }
     sync(); redraw();
@@ -1178,9 +1225,11 @@ dash.calc('events', {
       const id = decodeURIComponent((location.hash || '').slice(1));
       const v = id && d.data.find((x) => String(x.id) === id);
       if (v) { S = { A: norm(v.a), B: norm(v.b) }; V.preset = String(v.id); setNames(v.aName, v.bName); }
+      else if (id === 'single') enterSingle();
       else if (TABS.includes(id)) V.tab = id;
       else if (id) { const el = document.getElementById(id); if (el) setTimeout(() => el.scrollIntoView(), 0); }
     }
+    showMode();
     showTab();
     sync();
   });
